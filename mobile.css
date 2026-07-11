@@ -76,4 +76,9 @@ body { overflow-x:hidden; }
   .bulk-time-shift input { width:62px; height:38px; font-size:16px !important; }
   .bulk-time-shift-actions { width:100%; }
   .bulk-time-shift-actions button { flex:1; height:38px; font-size:12px; }
+  .routine-editor-top { flex-wrap:wrap; }
+  .routine-order-actions { margin-left:23px; }
+  .routine-order-actions button { width:34px; height:34px; }
+  .history-clear-area { text-align:left; }
+  .history-clear-area button { width:100%; min-height:42px; font-size:12px; }
 }
