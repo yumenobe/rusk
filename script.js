@@ -87,22 +87,51 @@ function renderRoutines() {
 function render() {
   taskList.replaceChildren(); const visible = sortedTasks(); emptyState.hidden = visible.length !== 0;
   document.querySelector('#task-count').textContent = `${visible.length} ITEM${visible.length === 1 ? '' : 'S'}`;
-  sortHint.textContent = activeSort === 'priority' ? 'ドラッグ＆ドロップで優先度を並べ替えられます' : '開始時間が早いタスクから表示しています'; dateLabel(); renderRoutines();
+  sortHint.textContent = activeSort === 'priority' ? 'PCはドラッグ、スマホは↑↓で優先度を並べ替えられます' : '開始時間が早いタスクから表示しています'; dateLabel(); renderRoutines();
   visible.forEach(task => {
     const node = template.content.cloneNode(true), card = node.querySelector('.task-card'); card.dataset.id = task.id; card.draggable = activeSort === 'priority'; card.classList.toggle('completed',task.completed);
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
-    const editor = node.querySelector('.time-editor'),  editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
-
+    const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
     node.querySelector('.save-time-button').addEventListener('click', () => { if (new Date(editEnd.value) <= new Date(editStart.value)) { editEnd.setCustomValidity('終了時間は開始時間より後に設定してください。'); editEnd.reportValidity(); return; } task.startTime = editStart.value; task.endTime = editEnd.value; save(); render(); });
+    const moveUp = node.querySelector('.move-up-button'), moveDown = node.querySelector('.move-down-button');
+    const priorityTasks = sortedTasks();
+    const taskPosition = priorityTasks.findIndex(item => item.id === task.id);
+    moveUp.disabled = activeSort !== 'priority' || taskPosition <= 0;
+    moveDown.disabled = activeSort !== 'priority' || taskPosition === -1 || taskPosition >= priorityTasks.length - 1;
+    moveUp.addEventListener('click', () => moveTask(task.id, -1));
+    moveDown.addEventListener('click', () => moveTask(task.id, 1));
     node.querySelector('.check-button').addEventListener('click', () => { task.completed=!task.completed; save(); render(); }); node.querySelector('.delete-button').addEventListener('click', () => { tasks=tasks.filter(item=>item.id!==task.id); save(); render(); });
     card.addEventListener('dragstart',()=>card.classList.add('dragging')); card.addEventListener('dragend',()=>{card.classList.remove('dragging');updatePriorityFromDom();}); taskList.append(node);
   });
+}
+function moveTask(taskId, direction) {
+  if (activeSort !== 'priority') return;
+  const visible = sortedTasks();
+  const index = visible.findIndex(task => task.id === taskId);
+  const targetIndex = index + direction;
+  if (index < 0 || targetIndex < 0 || targetIndex >= visible.length) return;
+  const current = visible[index];
+  const target = visible[targetIndex];
+  const currentPriority = current.priority;
+  current.priority = target.priority;
+  target.priority = currentPriority;
+  save();
+  render();
 }
 function updatePriorityFromDom() { if(activeSort !== 'priority') return; [...taskList.children].forEach((card,index)=>{const task=tasks.find(item=>item.id===card.dataset.id);if(task)task.priority=index;});save();render(); }
 function addTask(task) { tasks.push({...task,id:crypto.randomUUID(),completed:false,priority:tasks.length});save();render(); }
 function addRoutine(routine) { const setting=settings(), day = new Date(`${selectedDate}T12:00`).getDay(), weekend = day === 0 || day === 6; const startTime = weekend ? (routine.weekendStart || routine.start) : (routine.weekdayStart || routine.start); const endTime = weekend ? (routine.weekendEnd || routine.end) : (routine.weekdayEnd || routine.end); const start = new Date(`${selectedDate}T${startTime || setting.defaultStart || '09:00'}`), end = new Date(`${selectedDate}T${endTime || setting.defaultEnd || '10:00'}`); if(end<=start) end.setDate(end.getDate()+1); addTask({title:routine.title,memo:'毎日のルーティン',genre:routine.genre,startTime:localDateTimeValue(start),endTime:localDateTimeValue(end)}); }
 taskList.addEventListener('dragover',event=>{if(activeSort !== 'priority')return;event.preventDefault();const dragging=taskList.querySelector('.dragging');if(!dragging)return;const after=[...taskList.querySelectorAll('.saved-card:not(.dragging)')].find(card=>event.clientY<card.getBoundingClientRect().top+card.offsetHeight/2);taskList.insertBefore(dragging,after||null);});
 document.querySelectorAll('.sort-button').forEach(button=>button.addEventListener('click',()=>{activeSort=button.dataset.sort;document.querySelectorAll('.sort-button').forEach(item=>item.classList.toggle('is-active',item===button));render();}));
+const routineToggle = document.querySelector('#routine-toggle');
+const routineContent = document.querySelector('#routine-content');
+if (routineToggle && routineContent) {
+  routineToggle.addEventListener('click', () => {
+    const expanded = routineToggle.getAttribute('aria-expanded') === 'true';
+    routineToggle.setAttribute('aria-expanded', String(!expanded));
+    routineContent.hidden = expanded;
+  });
+}
 const routineFilter = document.querySelector('.routine-filter');
 if (routineFilter) {
   routineFilter.addEventListener('click', event => {

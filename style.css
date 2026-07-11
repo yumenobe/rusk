@@ -49,3 +49,14 @@ input:focus,textarea:focus,select:focus { border-color:#c49c77; box-shadow:0 0 0
 .routine-period-picker legend { float:left; margin-right:2px; font-size:10px; }
 .routine-period-picker label { display:flex; align-items:center; gap:4px; font-size:10px; cursor:pointer; }
 .routine-period-picker input { width:14px; height:14px; margin:0; accent-color:#8d6449; }
+
+/* Collapsible daily routines */
+.routine-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; padding:0; border:0; color:#a27d60; background:transparent; font-size:10px; font-weight:700; cursor:pointer; }
+.routine-chevron { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; background:#f4e7d8; font-size:16px; transition:transform .2s ease; }
+.routine-toggle[aria-expanded="true"] .routine-chevron { transform:rotate(180deg); }
+.routine-content { margin-top:10px; }
+.routine-content[hidden] { display:none; }
+.routine-content .routine-filter { width:max-content; margin:0 0 10px auto; }
+.priority-move { display:none; gap:4px; }
+.priority-move button { display:grid; place-items:center; width:27px; height:27px; padding:0; border:1px solid #ead9c5; border-radius:8px; color:#805d45; background:#fffdfa; cursor:pointer; }
+.priority-move button:disabled { opacity:.3; cursor:default; }
