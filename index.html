@@ -74,11 +74,11 @@
             <div class="date-nav-actions"><button id="today-button" type="button">今日</button><button id="next-day" type="button" aria-label="次の日">›</button></div>
           </nav>
           <div class="bulk-time-shift" aria-label="この日のタスク時間を一括変更">
-            <button id="bulk-shift-toggle" class="routine-toggle" type="button" aria-expanded="true" aria-controls="bulk-shift-content">
-              <span id="bulk-shift-title">この日のタスクの時間を変更</span>
+            <button id="bulk-shift-toggle" class="routine-toggle" type="button" aria-expanded="false" aria-controls="bulk-shift-content">
+              <span id="bulk-shift-title">この日のタスクを 前倒し/後倒し</span>
               <span class="routine-chevron" aria-hidden="true">⌄</span>
             </button>
-            <div id="bulk-shift-content" class="bulk-time-shift-content">
+            <div id="bulk-shift-content" class="bulk-time-shift-content" hidden>
               <span>この日のタスクを</span>
               <label><input id="shift-minutes" type="number" min="1" max="1440" step="1" value="15" inputmode="numeric" aria-label="移動する分数" />分</label>
               <div class="bulk-time-shift-actions"><button id="shift-earlier" type="button">前倒し</button><button id="shift-later" type="button">後倒し</button></div>
