@@ -91,8 +91,8 @@ function render() {
   visible.forEach(task => {
     const node = template.content.cloneNode(true), card = node.querySelector('.task-card'); card.dataset.id = task.id; card.draggable = activeSort === 'priority'; card.classList.toggle('completed',task.completed);
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
-    const editor = node.querySelector('.time-editor'), editButton = node.querySelector('.edit-time-button'), editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
-    editButton.addEventListener('click', () => { editor.hidden = !editor.hidden; editButton.textContent = editor.hidden ? '時間を変更' : '閉じる'; });
+    const editor = node.querySelector('.time-editor'),  editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
+
     node.querySelector('.save-time-button').addEventListener('click', () => { if (new Date(editEnd.value) <= new Date(editStart.value)) { editEnd.setCustomValidity('終了時間は開始時間より後に設定してください。'); editEnd.reportValidity(); return; } task.startTime = editStart.value; task.endTime = editEnd.value; save(); render(); });
     node.querySelector('.check-button').addEventListener('click', () => { task.completed=!task.completed; save(); render(); }); node.querySelector('.delete-button').addEventListener('click', () => { tasks=tasks.filter(item=>item.id!==task.id); save(); render(); });
     card.addEventListener('dragstart',()=>card.classList.add('dragging')); card.addEventListener('dragend',()=>{card.classList.remove('dragging');updatePriorityFromDom();}); taskList.append(node);
