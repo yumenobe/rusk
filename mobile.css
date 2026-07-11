@@ -15,15 +15,16 @@ body { overflow-x:hidden; }
   .form-dialog-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:#694832; font-size:18px; font-weight:700; }
   .form-dialog-title button { display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%; color:#7a5842; background:#f2e4d3; font-size:24px; cursor:pointer; }
   .task-form .field-label { margin-top:5px; font-size:13px; }.task-form input,.task-form textarea,.task-form select { font-size:16px; }.task-form input,.task-form select { height:51px; }.task-form textarea { height:96px; }.time-row label { font-size:11px; }.time-row input[type="datetime-local"] { font-size:12px; }.submit-button { height:54px; margin-top:16px; font-size:16px; }
-  .tasks-panel { min-height:calc(100dvh - 64px); padding:25px 16px calc(28px + env(safe-area-inset-bottom)); }.tasks-header { padding-bottom:22px; }.tasks-header h2 { font-size:24px; }.header-settings { display:none; }.date-navigation { margin-bottom:18px; }.date-page-label { font-size:14px; }.routine-button,.sort-button { font-size:12px; }.sort-hint,.section-label,.task-card p,.genre-tag,.edit-time-button,.calendar-button { font-size:11px; }.task-card h3 { font-size:16px; }.saved-card { gap:9px; padding:16px 12px; }.drag-handle { display:none; }.task-actions { flex-wrap:wrap; justify-content:flex-end; }.time-editor { flex-wrap:wrap; }.time-editor input { width:calc(50% - 26px); font-size:10px; }.empty-state p { font-size:12px; }
+  .tasks-panel { min-height:calc(100dvh - 64px); padding:25px 16px calc(28px + env(safe-area-inset-bottom)); }.tasks-header { padding-bottom:22px; }.tasks-header h2 { font-size:24px; }.header-settings { display:none; }.date-navigation { margin-bottom:18px; }.date-page-label { font-size:17px; }.routine-button,.sort-button { font-size:12px; }.sort-hint,.section-label,.task-card p,.genre-tag,.edit-time-button,.calendar-button { font-size:11px; }.task-card h3 { font-size:16px; }.saved-card { gap:9px; padding:16px 12px; }.drag-handle { display:none; }.task-actions { flex-wrap:wrap; justify-content:flex-end; }.time-editor { flex-wrap:wrap; }.time-editor input { width:calc(50% - 26px); font-size:10px; }.empty-state p { font-size:12px; }
   .settings-shell { width:100%; min-height:100dvh; padding:30px 20px calc(30px + env(safe-area-inset-bottom)); }.settings-content { margin:50px auto; }.default-time-row { flex-wrap:wrap; }.default-time-row button { margin-left:0; }.routine-editor-details,.routine-time-row { flex-wrap:wrap; }.routine-editor-details select,.routine-editor-details input { font-size:12px; }
 }
 
 @media (max-width:600px) {
-  .task-time-button { font-size:10px; }
+  .task-time-button { gap:7px; font-size:13px; }
   .time-editor { display:grid; grid-template-columns:1fr auto 1fr; }
   .time-editor[hidden] { display:none; }
-  .time-editor input { width:100%; font-size:9px; }
+  .time-editor { font-size:11px; }
+  .time-editor input { width:100%; min-height:38px; font-size:11px; }
   .save-time-button { grid-column:3; width:100%; min-width:112px; font-size:12px; }
 }
 
