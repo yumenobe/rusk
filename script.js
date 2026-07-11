@@ -92,7 +92,28 @@ function render() {
     const node = template.content.cloneNode(true), card = node.querySelector('.task-card'); card.dataset.id = task.id; card.draggable = activeSort === 'priority'; card.classList.toggle('completed',task.completed);
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
     const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
-    node.querySelector('.save-time-button').addEventListener('click', () => { if (new Date(editEnd.value) <= new Date(editStart.value)) { editEnd.setCustomValidity('終了時間は開始時間より後に設定してください。'); editEnd.reportValidity(); return; } task.startTime = editStart.value; task.endTime = editEnd.value; save(); render(); });
+  const saveTimeButton = node.querySelector('.save-time-button');
+
+saveTimeButton.addEventListener('click', () => {
+  if (new Date(editEnd.value) <= new Date(editStart.value)) {
+    editEnd.setCustomValidity('終了時間は開始時間より後に設定してください。');
+    editEnd.reportValidity();
+    return;
+  }
+
+  task.startTime = editStart.value;
+  task.endTime = editEnd.value;
+  save();
+
+  saveTimeButton.textContent = '保存完了';
+  saveTimeButton.disabled = true;
+
+  setTimeout(() => {
+    saveTimeButton.textContent = '保存';
+    saveTimeButton.disabled = false;
+    render();
+  }, 1200);
+});
     const moveUp = node.querySelector('.move-up-button'), moveDown = node.querySelector('.move-down-button');
     const priorityTasks = sortedTasks();
     const taskPosition = priorityTasks.findIndex(item => item.id === task.id);
