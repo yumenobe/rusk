@@ -9,21 +9,81 @@ const emptyState = document.querySelector('#empty-state');
 const template = document.querySelector('#task-template');
 const sortHint = document.querySelector('#sort-hint');
 const genres = { work: '仕事', personal: 'くらし', study: '学び', important: '大切なこと' };
-const defaultRoutines = [{ id:'morning',title:'朝の準備',genre:'personal',weekdayStart:'08:00',weekdayEnd:'08:30',weekendStart:'09:00',weekendEnd:'09:30',enabled:true },{ id:'exercise',title:'ストレッチ',genre:'personal',weekdayStart:'18:00',weekdayEnd:'18:15',weekendStart:'10:00',weekendEnd:'10:15',enabled:true },{ id:'review',title:'今日をふりかえる',genre:'study',weekdayStart:'21:00',weekdayEnd:'21:20',weekendStart:'20:00',weekendEnd:'20:20',enabled:true },{ id:'reading',title:'読書',genre:'study',weekdayStart:'22:00',weekdayEnd:'22:30',weekendStart:'15:00',weekendEnd:'15:30',enabled:false }];
+const defaultRoutines = [
+  { id:'morning-toilet', title:'トイレに行く', genre:'personal', period:'morning', weekdayStart:'06:40', weekdayEnd:'06:45', weekendStart:'08:00', weekendEnd:'08:05', enabled:true },
+  { id:'morning-wash', title:'洗顔', genre:'personal', period:'morning', weekdayStart:'06:45', weekdayEnd:'06:55', weekendStart:'08:05', weekendEnd:'08:15', enabled:true },
+  { id:'morning-breakfast', title:'朝食', genre:'personal', period:'morning', weekdayStart:'06:55', weekdayEnd:'07:15', weekendStart:'08:15', weekendEnd:'08:35', enabled:true },
+  { id:'morning-dishes', title:'朝食後皿洗い', genre:'personal', period:'morning', weekdayStart:'07:15', weekdayEnd:'07:23', weekendStart:'08:35', weekendEnd:'08:43', enabled:true },
+  { id:'morning-brush', title:'歯磨き', genre:'personal', period:'morning', weekdayStart:'07:23', weekdayEnd:'07:26', weekendStart:'08:43', weekendEnd:'08:46', enabled:true },
+  { id:'morning-makeup', title:'メイク', genre:'personal', period:'morning', weekdayStart:'07:26', weekdayEnd:'07:36', weekendStart:'08:46', weekendEnd:'08:56', enabled:true },
+  { id:'morning-hair', title:'ヘアセット', genre:'personal', period:'morning', weekdayStart:'07:36', weekdayEnd:'07:41', weekendStart:'08:56', weekendEnd:'09:01', enabled:true },
+  { id:'morning-bag', title:'荷物準備を作る', genre:'personal', period:'morning', weekdayStart:'07:41', weekdayEnd:'07:44', weekendStart:'09:01', weekendEnd:'09:04', enabled:true },
+  { id:'night-unpack', title:'荷物を片付ける', genre:'personal', period:'night', weekdayStart:'20:00', weekdayEnd:'20:05', weekendStart:'19:00', weekendEnd:'19:05', enabled:true },
+  { id:'night-clothes', title:'着替えを準備する', genre:'personal', period:'night', weekdayStart:'20:05', weekdayEnd:'20:10', weekendStart:'19:05', weekendEnd:'19:10', enabled:true },
+  { id:'night-bath', title:'入浴', genre:'personal', period:'night', weekdayStart:'20:10', weekdayEnd:'20:40', weekendStart:'19:10', weekendEnd:'19:40', enabled:true },
+  { id:'night-lotion', title:'化粧水', genre:'personal', period:'night', weekdayStart:'20:40', weekdayEnd:'20:45', weekendStart:'19:40', weekendEnd:'19:45', enabled:true },
+  { id:'night-dryer', title:'ドライヤー', genre:'personal', period:'night', weekdayStart:'20:45', weekdayEnd:'21:00', weekendStart:'19:45', weekendEnd:'20:00', enabled:true },
+  { id:'night-dishes', title:'夕食皿洗い', genre:'personal', period:'night', weekdayStart:'21:30', weekdayEnd:'21:45', weekendStart:'20:30', weekendEnd:'20:45', enabled:true },
+  { id:'night-brush', title:'歯磨き', genre:'personal', period:'night', weekdayStart:'22:30', weekdayEnd:'22:35', weekendStart:'22:00', weekendEnd:'22:05', enabled:true },
+  { id:'review', title:'今日をふりかえる', genre:'study', period:'night', weekdayStart:'22:35', weekdayEnd:'22:45', weekendStart:'22:05', weekendEnd:'22:15', enabled:true }
+];
+const ROUTINE_SCHEMA_VERSION = 2;
+function migratedSettings() {
+  const current = JSON.parse(localStorage.getItem('rusk-settings') || '{}');
+  if (current.routineSchemaVersion === ROUTINE_SCHEMA_VERSION && Array.isArray(current.routines)) return current;
+  const legacyTitles = new Set(['朝の準備', 'ストレッチ']);
+  const kept = Array.isArray(current.routines)
+    ? current.routines.filter(routine => !['morning', 'exercise'].includes(routine.id) && !legacyTitles.has(routine.title))
+    : [];
+  const keptIds = new Set(kept.map(routine => routine.id));
+  const migrated = { ...current, routineSchemaVersion: ROUTINE_SCHEMA_VERSION, routines: [...defaultRoutines.filter(routine => !keptIds.has(routine.id)), ...kept] };
+  localStorage.setItem('rusk-settings', JSON.stringify(migrated));
+  return migrated;
+}
 let activeSort = 'priority';
+let activeRoutinePeriod = 'all';
 let selectedDate = localDate(new Date());
 let tasks = JSON.parse(localStorage.getItem('rusk-tasks') || '[]').map((task, index) => ({ ...task, startTime: task.startTime || task.deadline, endTime: task.endTime || addHour(task.deadline), priority: task.priority ?? index }));
 
 function localDateTimeValue(date) { return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16); }
 function localDate(date) { return localDateTimeValue(date).slice(0, 10); }
 function addHour(value) { const date = new Date(value); date.setHours(date.getHours() + 1); return localDateTimeValue(date); }
-function settings() { return JSON.parse(localStorage.getItem('rusk-settings') || '{}'); }
+function settings() { return migratedSettings(); }
+function routinePeriod(routine) {
+  if (routine.period) return routine.period;
+  if (routine.id === 'morning') return 'morning';
+  if (routine.id === 'exercise') return 'daytime';
+  return 'night';
+}
 function calendarUrl(task) { const stamp = value => new Date(value).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''); const params = new URLSearchParams({action:'TEMPLATE',text:task.title,details:task.memo || 'rusk から追加',dates:`${stamp(task.startTime)}/${stamp(task.endTime)}`}); return `https://calendar.google.com/calendar/render?${params}`; }
 function save() { localStorage.setItem('rusk-tasks', JSON.stringify(tasks)); }
 function dateLabel() { document.querySelector('#date-page-label').textContent = new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}).format(new Date(`${selectedDate}T12:00`)); }
 function selectedTasks() { return tasks.filter(task => task.startTime?.slice(0,10) === selectedDate); }
 function sortedTasks() { return selectedTasks().slice().sort(activeSort === 'time' ? (a,b) => new Date(a.startTime)-new Date(b.startTime) : (a,b) => a.priority-b.priority); }
-function renderRoutines() { const setting = settings(); const routines = setting.routines || defaultRoutines; const enabled = routines.filter(routine => routine.enabled); const area = document.querySelector('#routine-area'), list = document.querySelector('#routine-list'); area.hidden = !enabled.length; list.replaceChildren(); enabled.forEach(routine => { const button = document.createElement('button'); button.type = 'button'; button.className = 'routine-button'; button.textContent = `＋ ${routine.title}`; button.addEventListener('click', () => addRoutine(routine)); list.append(button); }); }
+function renderRoutines() {
+  const setting = settings();
+  const routines = (setting.routines || defaultRoutines).map(routine => ({ ...routine, period:routinePeriod(routine) }));
+  const enabled = routines.filter(routine => routine.enabled);
+  const visible = enabled.filter(routine => activeRoutinePeriod === 'all' || routine.period === activeRoutinePeriod);
+  const area = document.querySelector('#routine-area');
+  const list = document.querySelector('#routine-list');
+  area.hidden = !enabled.length;
+  list.replaceChildren();
+  visible.forEach(routine => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'routine-button';
+    button.textContent = `＋ ${routine.title}`;
+    button.addEventListener('click', () => addRoutine(routine));
+    list.append(button);
+  });
+  if (!visible.length && enabled.length) {
+    const message = document.createElement('p');
+    message.className = 'routine-empty';
+    message.textContent = 'この時間帯のルーティンはありません。';
+    list.append(message);
+  }
+}
 function render() {
   taskList.replaceChildren(); const visible = sortedTasks(); emptyState.hidden = visible.length !== 0;
   document.querySelector('#task-count').textContent = `${visible.length} ITEM${visible.length === 1 ? '' : 'S'}`;
@@ -43,6 +103,7 @@ function addTask(task) { tasks.push({...task,id:crypto.randomUUID(),completed:fa
 function addRoutine(routine) { const setting=settings(), day = new Date(`${selectedDate}T12:00`).getDay(), weekend = day === 0 || day === 6; const startTime = weekend ? (routine.weekendStart || routine.start) : (routine.weekdayStart || routine.start); const endTime = weekend ? (routine.weekendEnd || routine.end) : (routine.weekdayEnd || routine.end); const start = new Date(`${selectedDate}T${startTime || setting.defaultStart || '09:00'}`), end = new Date(`${selectedDate}T${endTime || setting.defaultEnd || '10:00'}`); if(end<=start) end.setDate(end.getDate()+1); addTask({title:routine.title,memo:'毎日のルーティン',genre:routine.genre,startTime:localDateTimeValue(start),endTime:localDateTimeValue(end)}); }
 taskList.addEventListener('dragover',event=>{if(activeSort !== 'priority')return;event.preventDefault();const dragging=taskList.querySelector('.dragging');if(!dragging)return;const after=[...taskList.querySelectorAll('.saved-card:not(.dragging)')].find(card=>event.clientY<card.getBoundingClientRect().top+card.offsetHeight/2);taskList.insertBefore(dragging,after||null);});
 document.querySelectorAll('.sort-button').forEach(button=>button.addEventListener('click',()=>{activeSort=button.dataset.sort;document.querySelectorAll('.sort-button').forEach(item=>item.classList.toggle('is-active',item===button));render();}));
+document.querySelectorAll('.routine-filter-button').forEach(button=>button.addEventListener('click',()=>{activeRoutinePeriod=button.dataset.period;document.querySelectorAll('.routine-filter-button').forEach(item=>item.classList.toggle('is-active',item===button));renderRoutines();}));
 document.querySelector('#previous-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()-1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#next-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()+1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#today-button').addEventListener('click',()=>{selectedDate=localDate(new Date());setDefaultTimes();render();});
 form.addEventListener('submit',event=>{event.preventDefault();if(new Date(endInput.value)<=new Date(startInput.value)){endInput.setCustomValidity('終了時間は開始時間より後に設定してください。');endInput.reportValidity();return;}addTask({title:titleInput.value.trim(),memo:memoInput.value.trim(),startTime:startInput.value,endTime:endInput.value,genre:genreInput.value});form.reset();genreInput.value='work';setDefaultTimes();form.classList.remove('is-open');titleInput.focus();}); endInput.addEventListener('input',()=>endInput.setCustomValidity(''));
 document.querySelector('#open-composer').addEventListener('click',()=>{form.classList.add('is-open');titleInput.focus();}); document.querySelector('#close-composer').addEventListener('click',()=>form.classList.remove('is-open'));

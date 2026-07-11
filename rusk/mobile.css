@@ -18,3 +18,12 @@ body { overflow-x:hidden; }
   .tasks-panel { min-height:calc(100dvh - 64px); padding:25px 16px calc(28px + env(safe-area-inset-bottom)); }.tasks-header { padding-bottom:22px; }.tasks-header h2 { font-size:24px; }.header-settings { display:none; }.date-navigation { margin-bottom:18px; }.date-page-label { font-size:14px; }.routine-button,.sort-button { font-size:12px; }.sort-hint,.section-label,.task-card p,.genre-tag,.edit-time-button,.calendar-button { font-size:11px; }.task-card h3 { font-size:16px; }.saved-card { gap:9px; padding:16px 12px; }.drag-handle { display:none; }.task-actions { flex-wrap:wrap; justify-content:flex-end; }.time-editor { flex-wrap:wrap; }.time-editor input { width:calc(50% - 26px); font-size:10px; }.empty-state p { font-size:12px; }
   .settings-shell { width:100%; min-height:100dvh; padding:30px 20px calc(30px + env(safe-area-inset-bottom)); }.settings-content { margin:50px auto; }.default-time-row { flex-wrap:wrap; }.default-time-row button { margin-left:0; }.routine-editor-details,.routine-time-row { flex-wrap:wrap; }.routine-editor-details select,.routine-editor-details input { font-size:12px; }
 }
+
+@media (max-width:600px) {
+  .mobile-settings { display:grid; }
+  .routine-area-heading { align-items:flex-start; flex-direction:column; }
+  .routine-filter { width:100%; }
+  .routine-filter-button { flex:1; min-width:0; padding:7px 5px; font-size:11px; }
+  .routine-period-picker { flex-wrap:wrap; margin-left:23px; }
+  .routine-period-picker legend { width:100%; margin-bottom:2px; }
+}

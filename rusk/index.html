@@ -19,7 +19,7 @@
             <span class="brand-mark" aria-hidden="true">R</span>
             <span>rusk</span>
           </a>
-          <button id="open-composer" class="open-composer" type="button" aria-label="タスクを追加">＋</button>
+          <div class="mobile-topbar-actions"><a class="mobile-settings" href="settings.html" aria-label="ルーティン設定">⚙</a><button id="open-composer" class="open-composer" type="button" aria-label="タスクを追加">＋</button></div>
         </div>
         <div class="composer-heading">
           <p class="eyebrow">A LITTLE TASK, A LOVELY DAY</p>
@@ -74,7 +74,16 @@
             <button id="next-day" type="button" aria-label="次の日">›</button>
           </nav>
           <div class="routine-area" id="routine-area" hidden>
-            <p>毎日のルーティン</p><div id="routine-list" class="routine-list"></div>
+            <div class="routine-area-heading">
+              <p>毎日のルーティン</p>
+              <div class="routine-filter" role="group" aria-label="ルーティンの時間帯">
+                <button type="button" class="routine-filter-button is-active" data-period="all">すべて</button>
+                <button type="button" class="routine-filter-button" data-period="morning">朝</button>
+                <button type="button" class="routine-filter-button" data-period="daytime">昼</button>
+                <button type="button" class="routine-filter-button" data-period="night">夜</button>
+              </div>
+            </div>
+            <div id="routine-list" class="routine-list"></div>
           </div>
           <div class="list-heading">
             <div class="section-label"><span id="list-title">保存したタスク</span><span id="task-count">0 ITEMS</span></div>
