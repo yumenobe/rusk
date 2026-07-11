@@ -40,3 +40,14 @@ body { overflow-x:hidden; }
   .routine-period-picker label { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
   .routine-period-picker input[type="radio"] { appearance:auto; -webkit-appearance:radio; flex:none; width:16px !important; height:16px !important; min-width:16px; margin:0; padding:0; border:0; box-shadow:none; }
 }
+
+@media screen and (max-width: 600px) {
+  .task-card.saved-card h3 {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.4 !important;
+  }
+}
