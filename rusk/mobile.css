@@ -1,0 +1,20 @@
+body { overflow-x:hidden; }
+.routine-time-row { display:flex; align-items:center; gap:5px; }
+.routine-time-row > span { min-width:21px; color:#97735b; font-weight:700; }
+
+@media (max-width:600px) {
+  body { min-width:0; font-size:16px; }
+  .app-shell { display:flex; width:100%; min-height:100dvh; flex-direction:column; }
+  .composer-panel { min-height:64px; padding:13px 18px; overflow:visible; background:#fffdf9; border-bottom:1px solid var(--line); }
+  .composer-panel::after,.composer-heading,.calendar-note,.settings-link { display:none; }
+  .mobile-topbar { display:flex; align-items:center; justify-content:space-between; }
+  .brand { font-size:27px; }.brand-mark { width:27px; height:27px; font-size:18px; }
+  .open-composer { display:grid; place-items:center; width:38px; height:38px; border:0; border-radius:50%; color:#fff; background:#744d35; font-size:25px; line-height:1; cursor:pointer; }
+  .task-form { display:none; }
+  .task-form.is-open { position:fixed; inset:0; z-index:20; display:grid; align-content:start; gap:13px; max-width:none; min-height:100dvh; padding:24px 20px calc(24px + env(safe-area-inset-bottom)); overflow-y:auto; background:rgba(255,253,249,.98); box-shadow:0 0 0 100vmax rgba(77,52,36,.34); }
+  .form-dialog-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:#694832; font-size:18px; font-weight:700; }
+  .form-dialog-title button { display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%; color:#7a5842; background:#f2e4d3; font-size:24px; cursor:pointer; }
+  .task-form .field-label { margin-top:5px; font-size:13px; }.task-form input,.task-form textarea,.task-form select { font-size:16px; }.task-form input,.task-form select { height:51px; }.task-form textarea { height:96px; }.time-row label { font-size:11px; }.time-row input[type="datetime-local"] { font-size:12px; }.submit-button { height:54px; margin-top:16px; font-size:16px; }
+  .tasks-panel { min-height:calc(100dvh - 64px); padding:25px 16px calc(28px + env(safe-area-inset-bottom)); }.tasks-header { padding-bottom:22px; }.tasks-header h2 { font-size:24px; }.header-settings { display:none; }.date-navigation { margin-bottom:18px; }.date-page-label { font-size:14px; }.routine-button,.sort-button { font-size:12px; }.sort-hint,.section-label,.task-card p,.genre-tag,.edit-time-button,.calendar-button { font-size:11px; }.task-card h3 { font-size:16px; }.saved-card { gap:9px; padding:16px 12px; }.drag-handle { display:none; }.task-actions { flex-wrap:wrap; justify-content:flex-end; }.time-editor { flex-wrap:wrap; }.time-editor input { width:calc(50% - 26px); font-size:10px; }.empty-state p { font-size:12px; }
+  .settings-shell { width:100%; min-height:100dvh; padding:30px 20px calc(30px + env(safe-area-inset-bottom)); }.settings-content { margin:50px auto; }.default-time-row { flex-wrap:wrap; }.default-time-row button { margin-left:0; }.routine-editor-details,.routine-time-row { flex-wrap:wrap; }.routine-editor-details select,.routine-editor-details input { font-size:12px; }
+}
