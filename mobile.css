@@ -17,6 +17,13 @@ body { overflow-x:hidden; }
   .task-form .field-label { margin-top:5px; font-size:13px; }.task-form input,.task-form textarea,.task-form select { font-size:16px; }.task-form input,.task-form select { height:51px; }.task-form textarea { height:96px; }.time-row label { font-size:11px; }.time-row input[type="datetime-local"] { font-size:12px; }.submit-button { height:54px; margin-top:16px; font-size:16px; }
   .tasks-panel { min-height:calc(100dvh - 64px); padding:25px 16px calc(28px + env(safe-area-inset-bottom)); }.tasks-header { padding-bottom:22px; }.tasks-header h2 { font-size:24px; }.header-settings { display:none; }.date-navigation { margin-bottom:18px; }.date-page-label { font-size:14px; }.routine-button,.sort-button { font-size:12px; }.sort-hint,.section-label,.task-card p,.genre-tag,.edit-time-button,.calendar-button { font-size:11px; }.task-card h3 { font-size:16px; }.saved-card { gap:9px; padding:16px 12px; }.drag-handle { display:none; }.task-actions { flex-wrap:wrap; justify-content:flex-end; }.time-editor { flex-wrap:wrap; }.time-editor input { width:calc(50% - 26px); font-size:10px; }.empty-state p { font-size:12px; }
   .settings-shell { width:100%; min-height:100dvh; padding:30px 20px calc(30px + env(safe-area-inset-bottom)); }.settings-content { margin:50px auto; }.default-time-row { flex-wrap:wrap; }.default-time-row button { margin-left:0; }.routine-editor-details,.routine-time-row { flex-wrap:wrap; }.routine-editor-details select,.routine-editor-details input { font-size:12px; }
+  /* モバイルではタイトルを省略しない */
+  .saved-card h3 {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    line-height: 1.4; }
 }
 
 @media (max-width:600px) {
