@@ -70,4 +70,10 @@ body { overflow-x:hidden; }
   input,
   textarea,
   select { touch-action:manipulation; }
+
+  .bulk-time-shift { margin:-8px 0 18px; padding:13px; border-radius:13px; background:#fff8ef; font-size:12px; }
+  .bulk-time-shift-content { flex-wrap:wrap; justify-content:center; gap:6px; }
+  .bulk-time-shift input { width:62px; height:38px; font-size:16px !important; }
+  .bulk-time-shift-actions { width:100%; }
+  .bulk-time-shift-actions button { flex:1; height:38px; font-size:12px; }
 }

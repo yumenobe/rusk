@@ -88,6 +88,15 @@ input:focus,textarea:focus,select:focus { border-color:#c49c77; box-shadow:0 0 0
 .date-navigation .date-nav-actions button { width:30px; height:30px; border-radius:8px; }
 .date-navigation .date-nav-actions #today-button { width:38px; font-size:10px; }
 .date-navigation .date-nav-actions #next-day { font-size:20px; }
+.bulk-time-shift { margin:-12px 0 20px; padding:13px; border-radius:13px; color:#9d806a; background:#fff8ef; font-size:10px; }
+.bulk-time-shift-content { display:flex; align-items:center; justify-content:flex-end; gap:7px; margin-top:10px; }
+.bulk-time-shift-content[hidden] { display:none; }
+.bulk-time-shift label { display:flex; align-items:center; gap:4px; font-weight:700; }
+.bulk-time-shift input { width:58px; height:32px; padding:0 7px; border-color:#ead9c5; background:#fffdfa; text-align:right; font-size:11px; }
+.bulk-time-shift-actions { display:flex; gap:5px; }
+.bulk-time-shift-actions button { height:32px; padding:0 10px; border:1px solid #ead9c5; border-radius:8px; color:#805d45; background:#fffdfa; font-size:10px; font-weight:700; cursor:pointer; transition:background-color .16s ease,transform .16s ease; }
+.bulk-time-shift-actions button:hover { background:#f1dfca; }
+.bulk-time-shift-actions button:active { background:#e5cdb4; transform:scale(.96); }
 .task-time-button { display:flex; align-items:baseline; gap:8px; margin-top:10px; padding:0; border:0; color:#9b7960; background:transparent; font-size:15px; line-height:1.6; cursor:pointer; }
 .time-editor { display:grid; grid-template-columns:1fr auto 1fr; align-items:end; gap:7px; margin-top:9px; color:#ad9079; font-size:11px; }
 .time-editor[hidden] { display:none; }
