@@ -25,9 +25,14 @@ const defaultRoutines = [
   { id:'night-dryer', title:'ドライヤー', genre:'personal', period:'night', weekdayStart:'20:45', weekdayEnd:'21:00', weekendStart:'19:45', weekendEnd:'20:00', enabled:true },
   { id:'night-dishes', title:'夕食皿洗い', genre:'personal', period:'night', weekdayStart:'21:30', weekdayEnd:'21:45', weekendStart:'20:30', weekendEnd:'20:45', enabled:true },
   { id:'night-brush', title:'歯磨き', genre:'personal', period:'night', weekdayStart:'22:30', weekdayEnd:'22:35', weekendStart:'22:00', weekendEnd:'22:05', enabled:true },
-  { id:'review', title:'今日をふりかえる', genre:'study', period:'night', weekdayStart:'22:35', weekdayEnd:'22:45', weekendStart:'22:05', weekendEnd:'22:15', enabled:true }
+  { id:'review', title:'今日をふりかえる', genre:'study', period:'night', weekdayStart:'22:35', weekdayEnd:'22:45', weekendStart:'22:05', weekendEnd:'22:15', enabled:true },
+  { id:'other-vacuum', title:'掃除機かけ', genre:'personal', period:'other', weekdayStart:'09:00', weekdayEnd:'09:15', weekendStart:'09:00', weekendEnd:'09:15', enabled:true },
+  { id:'other-toilet-cleaning', title:'トイレ掃除', genre:'personal', period:'other', weekdayStart:'09:00', weekdayEnd:'09:15', weekendStart:'09:00', weekendEnd:'09:15', enabled:true },
+  { id:'other-sink', title:'シンク掃除', genre:'personal', period:'other', weekdayStart:'09:00', weekdayEnd:'09:15', weekendStart:'09:00', weekendEnd:'09:15', enabled:true },
+  { id:'other-bathroom', title:'浴室掃除', genre:'personal', period:'other', weekdayStart:'09:00', weekdayEnd:'09:20', weekendStart:'09:00', weekendEnd:'09:20', enabled:true },
+  { id:'other-declutter', title:'断捨離', genre:'personal', period:'other', weekdayStart:'09:00', weekdayEnd:'09:30', weekendStart:'09:00', weekendEnd:'09:30', enabled:true }
 ];
-const ROUTINE_SCHEMA_VERSION = 2;
+const ROUTINE_SCHEMA_VERSION = 3;
 function migratedSettings() {
   const current = JSON.parse(localStorage.getItem('rusk-settings') || '{}');
   if (current.routineSchemaVersion === ROUTINE_SCHEMA_VERSION && Array.isArray(current.routines)) return current;
@@ -40,8 +45,9 @@ function migratedSettings() {
   localStorage.setItem('rusk-settings', JSON.stringify(migrated));
   return migrated;
 }
-let activeSort = 'priority';
-let activeRoutinePeriod = 'all';
+let activeSort = 'time';
+let activeRoutinePeriod = 'morning';
+let activeTimePeriod = 'all';
 let selectedDate = localDate(new Date());
 let tasks = JSON.parse(localStorage.getItem('rusk-tasks') || '[]').map((task, index) => ({ ...task, startTime: task.startTime || task.deadline, endTime: task.endTime || addHour(task.deadline), priority: task.priority ?? index }));
 
@@ -57,14 +63,14 @@ function routinePeriod(routine) {
 }
 function calendarUrl(task) { const stamp = value => new Date(value).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''); const params = new URLSearchParams({action:'TEMPLATE',text:task.title,details:task.memo || 'rusk から追加',dates:`${stamp(task.startTime)}/${stamp(task.endTime)}`}); return `https://calendar.google.com/calendar/render?${params}`; }
 function save() { localStorage.setItem('rusk-tasks', JSON.stringify(tasks)); }
-function dateLabel() { document.querySelector('#date-page-label').textContent = new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}).format(new Date(`${selectedDate}T12:00`)); }
+function dateLabel() { document.querySelector('#date-page-label').textContent = new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}).format(new Date(`${selectedDate}T12:00`)); document.querySelector('#date-picker').value = selectedDate; }
 function selectedTasks() { return tasks.filter(task => task.startTime?.slice(0,10) === selectedDate); }
-function sortedTasks() { return selectedTasks().slice().sort(activeSort === 'time' ? (a,b) => new Date(a.startTime)-new Date(b.startTime) : (a,b) => a.priority-b.priority); }
+function sortedTasks() { return selectedTasks().filter(task => activeSort !== 'time' || activeTimePeriod === 'all' || (activeTimePeriod === 'am' ? new Date(task.startTime).getHours() < 12 : new Date(task.startTime).getHours() >= 12)).sort((a,b) => Number(a.completed)-Number(b.completed) || (activeSort === 'time' ? new Date(a.startTime)-new Date(b.startTime) : a.priority-b.priority)); }
 function renderRoutines() {
   const setting = settings();
   const routines = (setting.routines || defaultRoutines).map(routine => ({ ...routine, period:routinePeriod(routine) }));
   const enabled = routines.filter(routine => routine.enabled);
-  const visible = enabled.filter(routine => activeRoutinePeriod === 'all' || routine.period === activeRoutinePeriod);
+  const visible = enabled.filter(routine => routine.period === activeRoutinePeriod);
   const area = document.querySelector('#routine-area');
   const list = document.querySelector('#routine-list');
   area.hidden = !enabled.length;
@@ -86,12 +92,17 @@ function renderRoutines() {
 }
 function render() {
   taskList.replaceChildren(); const visible = sortedTasks(); emptyState.hidden = visible.length !== 0;
+  document.querySelector('#time-filter').hidden = activeSort !== 'time';
   document.querySelector('#task-count').textContent = `${visible.length} ITEM${visible.length === 1 ? '' : 'S'}`;
   sortHint.textContent = activeSort === 'priority' ? 'PCはドラッグ、スマホは↑↓で優先度を並べ替えられます' : '開始時間が早いタスクから表示しています'; dateLabel(); renderRoutines();
   visible.forEach(task => {
     const node = template.content.cloneNode(true), card = node.querySelector('.task-card'); card.dataset.id = task.id; card.draggable = activeSort === 'priority'; card.classList.toggle('completed',task.completed);
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
     const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
+    const timeButton = node.querySelector('.task-time-button'), timeEditor = node.querySelector('.time-editor');
+    const formatTime = value => new Intl.DateTimeFormat('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
+    node.querySelector('.task-time-value').textContent = `${formatTime(task.startTime)} 〜 ${formatTime(task.endTime)}`;
+    timeButton.addEventListener('click', () => { const willOpen = timeEditor.hidden; timeEditor.hidden = !willOpen; timeButton.setAttribute('aria-expanded', String(willOpen)); });
   const saveTimeButton = node.querySelector('.save-time-button');
 
 saveTimeButton.addEventListener('click', () => {
@@ -105,11 +116,11 @@ saveTimeButton.addEventListener('click', () => {
   task.endTime = editEnd.value;
   save();
 
-  saveTimeButton.textContent = '保存完了';
+  saveTimeButton.textContent = '変更しました';
   saveTimeButton.disabled = true;
 
   setTimeout(() => {
-    saveTimeButton.textContent = '保存';
+    saveTimeButton.textContent = '時間を変更';
     saveTimeButton.disabled = false;
     render();
   }, 1200);
@@ -117,8 +128,8 @@ saveTimeButton.addEventListener('click', () => {
     const moveUp = node.querySelector('.move-up-button'), moveDown = node.querySelector('.move-down-button');
     const priorityTasks = sortedTasks();
     const taskPosition = priorityTasks.findIndex(item => item.id === task.id);
-    moveUp.disabled = activeSort !== 'priority' || taskPosition <= 0;
-    moveDown.disabled = activeSort !== 'priority' || taskPosition === -1 || taskPosition >= priorityTasks.length - 1;
+    moveUp.disabled = activeSort !== 'priority' || taskPosition <= 0 || priorityTasks[taskPosition - 1]?.completed !== task.completed;
+    moveDown.disabled = activeSort !== 'priority' || taskPosition === -1 || taskPosition >= priorityTasks.length - 1 || priorityTasks[taskPosition + 1]?.completed !== task.completed;
     moveUp.addEventListener('click', () => moveTask(task.id, -1));
     moveDown.addEventListener('click', () => moveTask(task.id, 1));
     node.querySelector('.check-button').addEventListener('click', () => { task.completed=!task.completed; save(); render(); }); node.querySelector('.delete-button').addEventListener('click', () => { tasks=tasks.filter(item=>item.id!==task.id); save(); render(); });
@@ -140,10 +151,11 @@ function moveTask(taskId, direction) {
   render();
 }
 function updatePriorityFromDom() { if(activeSort !== 'priority') return; [...taskList.children].forEach((card,index)=>{const task=tasks.find(item=>item.id===card.dataset.id);if(task)task.priority=index;});save();render(); }
-function addTask(task) { tasks.push({...task,id:crypto.randomUUID(),completed:false,priority:tasks.length});save();render(); }
+function addTask(task) { const active = tasks.filter(item => !item.completed); const topPriority = active.length ? Math.min(...active.map(item => item.priority ?? 0)) - 1 : 0; tasks.push({...task,id:crypto.randomUUID(),completed:false,priority:task.genre === 'important' ? topPriority : tasks.length});save();render(); }
 function addRoutine(routine) { const setting=settings(), day = new Date(`${selectedDate}T12:00`).getDay(), weekend = day === 0 || day === 6; const startTime = weekend ? (routine.weekendStart || routine.start) : (routine.weekdayStart || routine.start); const endTime = weekend ? (routine.weekendEnd || routine.end) : (routine.weekdayEnd || routine.end); const start = new Date(`${selectedDate}T${startTime || setting.defaultStart || '09:00'}`), end = new Date(`${selectedDate}T${endTime || setting.defaultEnd || '10:00'}`); if(end<=start) end.setDate(end.getDate()+1); addTask({title:routine.title,memo:'毎日のルーティン',genre:routine.genre,startTime:localDateTimeValue(start),endTime:localDateTimeValue(end)}); }
 taskList.addEventListener('dragover',event=>{if(activeSort !== 'priority')return;event.preventDefault();const dragging=taskList.querySelector('.dragging');if(!dragging)return;const after=[...taskList.querySelectorAll('.saved-card:not(.dragging)')].find(card=>event.clientY<card.getBoundingClientRect().top+card.offsetHeight/2);taskList.insertBefore(dragging,after||null);});
 document.querySelectorAll('.sort-button').forEach(button=>button.addEventListener('click',()=>{activeSort=button.dataset.sort;document.querySelectorAll('.sort-button').forEach(item=>item.classList.toggle('is-active',item===button));render();}));
+document.querySelector('#time-filter').addEventListener('click',event=>{const button=event.target.closest('.time-filter-button');if(!button)return;activeTimePeriod=button.dataset.timePeriod;document.querySelectorAll('.time-filter-button').forEach(item=>item.classList.toggle('is-active',item===button));render();});
 const routineToggle = document.querySelector('#routine-toggle');
 const routineContent = document.querySelector('#routine-content');
 if (routineToggle && routineContent) {
@@ -168,6 +180,7 @@ if (routineFilter) {
   });
 }
 document.querySelector('#previous-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()-1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#next-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()+1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#today-button').addEventListener('click',()=>{selectedDate=localDate(new Date());setDefaultTimes();render();});
+const datePicker = document.querySelector('#date-picker'); document.querySelector('#date-page-label').addEventListener('click',()=>{if(typeof datePicker.showPicker==='function')datePicker.showPicker();else datePicker.click();}); datePicker.addEventListener('change',()=>{if(!datePicker.value)return;selectedDate=datePicker.value;setDefaultTimes();render();});
 form.addEventListener('submit',event=>{event.preventDefault();if(new Date(endInput.value)<=new Date(startInput.value)){endInput.setCustomValidity('終了時間は開始時間より後に設定してください。');endInput.reportValidity();return;}addTask({title:titleInput.value.trim(),memo:memoInput.value.trim(),startTime:startInput.value,endTime:endInput.value,genre:genreInput.value});form.reset();genreInput.value='work';setDefaultTimes();form.classList.remove('is-open');titleInput.focus();}); endInput.addEventListener('input',()=>endInput.setCustomValidity(''));
 document.querySelector('#open-composer').addEventListener('click',()=>{form.classList.add('is-open');titleInput.focus();}); document.querySelector('#close-composer').addEventListener('click',()=>form.classList.remove('is-open'));
 function setDefaultTimes(){const setting=settings();const start=new Date(`${selectedDate}T${setting.defaultStart || '09:00'}`);const end=new Date(`${selectedDate}T${setting.defaultEnd || '10:00'}`);if(end<=start)end.setDate(end.getDate()+1);startInput.value=localDateTimeValue(start);endInput.value=localDateTimeValue(end);}
