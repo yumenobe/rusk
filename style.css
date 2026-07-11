@@ -67,7 +67,11 @@ input:focus,textarea:focus,select:focus { border-color:#c49c77; box-shadow:0 0 0
 .date-select-control { position:relative; display:inline-flex; align-items:center; min-height:36px; cursor:pointer; }
 .date-select-control::after { content:"▾"; margin-left:5px; color:#aa8971; font-size:10px; }
 .date-picker-wrap .date-select-control input[type="date"] { position:absolute; inset:0; z-index:2; width:100%; height:100%; margin:0; padding:0; border:0; opacity:.001; cursor:pointer; -webkit-appearance:none; appearance:none; }
-.task-time-button { display:flex; align-items:baseline; gap:8px; margin-top:10px; padding:0; border:0; color:#9b7960; background:transparent; font-size:12px; line-height:1.6; cursor:pointer; }
+.date-navigation .date-nav-actions { display:flex; gap:6px; }
+.date-navigation .date-nav-actions button { display:grid; place-items:center; width:34px; height:34px; padding:0; border:0; border-radius:9px; color:#8c684e; background:#fffdfa; cursor:pointer; }
+.date-navigation .date-nav-actions #today-button { width:42px; font-size:11px; font-weight:700; }
+.date-navigation .date-nav-actions #next-day { font-size:25px; line-height:1; }
+.task-time-button { display:flex; align-items:baseline; gap:8px; margin-top:10px; padding:0; border:0; color:#9b7960; background:transparent; font-size:15px; line-height:1.6; cursor:pointer; }
 .time-editor { display:grid; grid-template-columns:1fr auto 1fr; align-items:end; gap:7px; margin-top:9px; color:#ad9079; font-size:11px; }
 .time-editor[hidden] { display:none; }
 .time-editor label { display:grid; gap:3px; }

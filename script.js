@@ -100,7 +100,7 @@ function render() {
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
     const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
     const timeButton = node.querySelector('.task-time-button'), timeEditor = node.querySelector('.time-editor');
-    const formatTime = value => new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value));
+    const formatTime = value => value?.slice(11,16) || '--:--';
     node.querySelector('.task-time-value').textContent = `${formatTime(task.startTime)} 〜 ${formatTime(task.endTime)}`;
     timeButton.addEventListener('click', () => { const willOpen = timeEditor.hidden; timeEditor.hidden = !willOpen; timeButton.setAttribute('aria-expanded', String(willOpen)); });
   const saveTimeButton = node.querySelector('.save-time-button');
