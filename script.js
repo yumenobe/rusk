@@ -60,7 +60,7 @@ function migratedSettings() {
 }
 let activeSort = 'time';
 let activeRoutinePeriod = 'morning';
-let activeTimePeriod = 'all';
+let activeTimePeriod = new Date().getHours() < 12 ? 'am' : 'pm';
 let selectedDate = localDate(new Date());
 let tasks = readStoredJson(STORAGE_KEYS.tasks, [], 'tasks');
 if (!Array.isArray(tasks)) tasks = [];
@@ -177,7 +177,8 @@ function addTask(task) { const active = tasks.filter(item => !item.completed); c
 function addRoutine(routine) { const setting=settings(), day = new Date(`${selectedDate}T12:00`).getDay(), weekend = day === 0 || day === 6; const startTime = weekend ? (routine.weekendStart || routine.start) : (routine.weekdayStart || routine.start); const endTime = weekend ? (routine.weekendEnd || routine.end) : (routine.weekdayEnd || routine.end); const start = new Date(`${selectedDate}T${startTime || setting.defaultStart || '09:00'}`), end = new Date(`${selectedDate}T${endTime || setting.defaultEnd || '10:00'}`); if(end<=start) end.setDate(end.getDate()+1); addTask({title:routine.title,memo:'毎日のルーティン',genre:routine.genre,startTime:localDateTimeValue(start),endTime:localDateTimeValue(end)}); }
 taskList.addEventListener('dragover',event=>{if(activeSort !== 'priority')return;event.preventDefault();const dragging=taskList.querySelector('.dragging');if(!dragging)return;const after=[...taskList.querySelectorAll('.saved-card:not(.dragging)')].find(card=>event.clientY<card.getBoundingClientRect().top+card.offsetHeight/2);taskList.insertBefore(dragging,after||null);});
 document.querySelectorAll('.sort-button').forEach(button=>button.addEventListener('click',()=>{activeSort=button.dataset.sort;document.querySelectorAll('.sort-button').forEach(item=>item.classList.toggle('is-active',item===button));render();}));
-document.querySelector('#time-filter').addEventListener('click',event=>{const button=event.target.closest('.time-filter-button');if(!button)return;activeTimePeriod=button.dataset.timePeriod;document.querySelectorAll('.time-filter-button').forEach(item=>item.classList.toggle('is-active',item===button));render();});
+function updateTimePeriodButtons() { document.querySelectorAll('.time-filter-button').forEach(item=>{const selected=item.dataset.timePeriod===activeTimePeriod;item.classList.toggle('is-active',selected);item.setAttribute('aria-pressed',String(selected));}); }
+document.querySelector('#time-filter').addEventListener('click',event=>{const button=event.target.closest('.time-filter-button');if(!button)return;activeTimePeriod=button.dataset.timePeriod;updateTimePeriodButtons();render();});
 const routineToggle = document.querySelector('#routine-toggle');
 const routineContent = document.querySelector('#routine-content');
 if (routineToggle && routineContent) {
@@ -201,7 +202,7 @@ if (routineFilter) {
     renderRoutines();
   });
 }
-document.querySelector('#previous-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()-1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#next-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()+1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#today-button').addEventListener('click',()=>{selectedDate=localDate(new Date());setDefaultTimes();render();});
+document.querySelector('#previous-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()-1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#next-day').addEventListener('click',()=>{const date=new Date(`${selectedDate}T12:00`);date.setDate(date.getDate()+1);selectedDate=localDate(date);setDefaultTimes();render();}); document.querySelector('#today-button').addEventListener('click',()=>{selectedDate=localDate(new Date());activeTimePeriod=new Date().getHours()<12?'am':'pm';updateTimePeriodButtons();setDefaultTimes();render();});
 const datePicker = document.querySelector('#date-picker'); datePicker.addEventListener('change',()=>{if(!datePicker.value)return;selectedDate=datePicker.value;setDefaultTimes();render();});
 function shiftCurrentDayTasks(direction) { const minutesInput=document.querySelector('#shift-minutes'); const minutes=Number.parseInt(minutesInput.value,10); if(!Number.isFinite(minutes)||minutes<1){minutesInput.setCustomValidity('1分以上を入力してください。');minutesInput.reportValidity();return;} minutesInput.setCustomValidity(''); const offset=direction*minutes*60_000; sortedTasks().filter(task=>!task.completed).forEach(task=>{task.startTime=localDateTimeValue(new Date(new Date(task.startTime).getTime()+offset));task.endTime=localDateTimeValue(new Date(new Date(task.endTime).getTime()+offset));});save();render(); }
 document.querySelector('#shift-earlier').addEventListener('click',()=>shiftCurrentDayTasks(-1));
@@ -210,4 +211,4 @@ const bulkShiftToggle=document.querySelector('#bulk-shift-toggle'),bulkShiftCont
 form.addEventListener('submit',event=>{event.preventDefault();if(new Date(endInput.value)<=new Date(startInput.value)){endInput.setCustomValidity('終了時間は開始時間より後に設定してください。');endInput.reportValidity();return;}addTask({title:titleInput.value.trim(),memo:memoInput.value.trim(),startTime:startInput.value,endTime:endInput.value,genre:genreInput.value});form.reset();genreInput.value='work';setDefaultTimes();form.classList.remove('is-open');titleInput.focus();}); endInput.addEventListener('input',()=>endInput.setCustomValidity(''));
 document.querySelector('#open-composer').addEventListener('click',()=>{form.classList.add('is-open');titleInput.focus();}); document.querySelector('#close-composer').addEventListener('click',()=>form.classList.remove('is-open'));
 function setDefaultTimes(){const setting=settings();const start=new Date(`${selectedDate}T${setting.defaultStart || '09:00'}`);const end=new Date(`${selectedDate}T${setting.defaultEnd || '10:00'}`);if(end<=start)end.setDate(end.getDate()+1);startInput.value=localDateTimeValue(start);endInput.value=localDateTimeValue(end);}
-setDefaultTimes();render();
+updateTimePeriodButtons();setDefaultTimes();render();
