@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260712-2" />
-    <link rel="stylesheet" href="mobile.css?v=20260712-2" />
+    <link rel="stylesheet" href="style.css?v=20260712-3" />
+    <link rel="stylesheet" href="mobile.css?v=20260712-3" />
   </head>
   <body>
     <main class="app-shell">
@@ -124,7 +124,7 @@
           <div class="card-top"><span class="genre-tag"></span></div>
           <h3></h3><p class="task-memo"></p>
           <button class="task-time-button" type="button" aria-expanded="false" aria-label="実施日時を変更"><span class="task-time-value"></span></button>
-          <div class="time-editor" hidden><label>開始日時<input class="edit-start" type="text" inputmode="numeric" placeholder="2026-07-12 09:00" aria-label="開始日時（年-月-日 時:分）" /></label><span>〜</span><label>終了日時<input class="edit-end" type="text" inputmode="numeric" placeholder="2026-07-12 10:00" aria-label="終了日時（年-月-日 時:分）" /></label><div class="time-editor-actions"><button class="set-current-time-button" type="button">現在時刻</button><button class="save-time-button" type="button">時間を変更</button></div></div>
+          <div class="time-editor" hidden><label>開始日時<span class="datetime-parts edit-start" aria-label="開始日時"><input class="datetime-year" type="text" inputmode="numeric" maxlength="4" aria-label="開始年" /><span>年</span><input type="text" inputmode="numeric" maxlength="2" aria-label="開始月" /><span>月</span><input type="text" inputmode="numeric" maxlength="2" aria-label="開始日" /><span>日</span><input type="text" inputmode="numeric" maxlength="2" aria-label="開始時" /><span>：</span><input type="text" inputmode="numeric" maxlength="2" aria-label="開始分" /></span></label><span>〜</span><label>終了日時<span class="datetime-parts edit-end" aria-label="終了日時"><input class="datetime-year" type="text" inputmode="numeric" maxlength="4" aria-label="終了年" /><span>年</span><input type="text" inputmode="numeric" maxlength="2" aria-label="終了月" /><span>月</span><input type="text" inputmode="numeric" maxlength="2" aria-label="終了日" /><span>日</span><input type="text" inputmode="numeric" maxlength="2" aria-label="終了時" /><span>：</span><input type="text" inputmode="numeric" maxlength="2" aria-label="終了分" /></span></label><div class="time-editor-actions"><button class="set-current-time-button" type="button">現在時刻</button><button class="save-time-button" type="button">時間を変更</button></div></div>
         </div>
         <div class="task-actions">
           <div class="priority-move" aria-label="優先順位を変更">
@@ -136,6 +136,6 @@
         </div>
       </article>
     </template>
-    <script src="script.js?v=20260712-2"></script>
+    <script src="script.js?v=20260712-3"></script>
   </body>
 </html>

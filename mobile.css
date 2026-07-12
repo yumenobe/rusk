@@ -28,6 +28,10 @@ body { overflow-x:hidden; }
   .time-editor input { width:100%; min-height:44px; padding:0 8px; font-size:16px !important; line-height:44px; }
   .time-editor-actions { grid-column:1; display:grid; grid-template-columns:1fr 1fr; }
   .save-time-button,.set-current-time-button { width:100%; min-width:0; height:42px; font-size:12px; }
+  .time-editor .datetime-parts { gap:3px; }
+  .time-editor .datetime-parts input { width:34px; min-height:44px; padding:0 2px; font-size:16px !important; line-height:44px; }
+  .time-editor .datetime-parts .datetime-year { width:58px; }
+  .datetime-parts > span { font-size:12px; }
 }
 
 @media (max-width:600px) {

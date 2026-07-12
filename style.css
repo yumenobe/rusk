@@ -115,6 +115,10 @@ input:focus,textarea:focus,select:focus { border-color:#c49c77; box-shadow:0 0 0
 .time-editor-actions { grid-column:3; display:flex; gap:5px; }
 .save-time-button,.set-current-time-button { height:32px; padding:0 9px; border:0; border-radius:7px; color:#AB8E77; background:#F8F0E7; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; }
 .set-current-time-button { color:#80634d; background:#f2e4d3; }
+.datetime-parts { display:flex; align-items:center; gap:3px; white-space:nowrap; }
+.time-editor .datetime-parts input { width:34px; height:36px; padding:0 4px; text-align:center; font-size:11px; }
+.time-editor .datetime-parts .datetime-year { width:52px; }
+.datetime-parts > span { color:#9b7960; font-size:10px; }
 .time-filter { display:flex; width:max-content; gap:3px; margin:0 0 9px auto; padding:3px; border-radius:999px; background:#f8f0e7; }
 .time-filter[hidden] { display:none; }
 .time-filter-button { min-width:42px; padding:5px 8px; border:0; border-radius:999px; color:#ab8e77; background:transparent; font-size:9px; cursor:pointer; }
