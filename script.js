@@ -71,6 +71,8 @@ if (!Array.isArray(taskHistory)) taskHistory = [];
 function localDateTimeValue(date) { return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16); }
 function localDate(date) { return localDateTimeValue(date).slice(0, 10); }
 function addHour(value) { const date = new Date(value); date.setHours(date.getHours() + 1); return localDateTimeValue(date); }
+function editableDateTimeValue(value) { return value ? value.replace('T',' ') : ''; }
+function parseEditableDateTime(value) { const text=value.trim(); const match=text.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/)||text.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/); if(!match)return null; const [,year,month,day,hour,minute]=match.map(Number); const date=new Date(year,month-1,day,hour,minute); return date.getFullYear()===year&&date.getMonth()===month-1&&date.getDate()===day&&date.getHours()===hour&&date.getMinutes()===minute?date:null; }
 function settings() { return migratedSettings(); }
 function routinePeriod(routine) {
   if (routine.period) return routine.period;
@@ -117,7 +119,7 @@ function render() {
   visible.forEach(task => {
     const node = template.content.cloneNode(true), card = node.querySelector('.task-card'); card.dataset.id = task.id; card.draggable = activeSort === 'priority'; card.classList.toggle('completed',task.completed);
     const tag = node.querySelector('.genre-tag'); tag.textContent = genres[task.genre]; tag.classList.add(task.genre); node.querySelector('h3').textContent = task.title; node.querySelector('.task-memo').textContent = task.memo || 'メモはありません'; node.querySelector('.calendar-button').href = calendarUrl(task);
-    const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = task.startTime; editEnd.value = task.endTime;
+    const editStart = node.querySelector('.edit-start'), editEnd = node.querySelector('.edit-end'); editStart.value = editableDateTimeValue(task.startTime); editEnd.value = editableDateTimeValue(task.endTime);
     const timeButton = node.querySelector('.task-time-button'), timeEditor = node.querySelector('.time-editor');
     const formatTime = value => value?.slice(11,16) || '--:--';
     node.querySelector('.task-time-value').textContent = `${formatTime(task.startTime)} 〜 ${formatTime(task.endTime)}`;
@@ -125,14 +127,19 @@ function render() {
   const saveTimeButton = node.querySelector('.save-time-button');
 
 saveTimeButton.addEventListener('click', () => {
-  if (new Date(editEnd.value) <= new Date(editStart.value)) {
+  const parsedStart=parseEditableDateTime(editStart.value),parsedEnd=parseEditableDateTime(editEnd.value);
+  if(!parsedStart){editStart.setCustomValidity('YYYY-MM-DD HH:mm または12桁の数字で入力してください。');editStart.reportValidity();return;}
+  editStart.setCustomValidity('');
+  if(!parsedEnd){editEnd.setCustomValidity('YYYY-MM-DD HH:mm または12桁の数字で入力してください。');editEnd.reportValidity();return;}
+  editEnd.setCustomValidity('');
+  if (parsedEnd <= parsedStart) {
     editEnd.setCustomValidity('終了時間は開始時間より後に設定してください。');
     editEnd.reportValidity();
     return;
   }
 
-  task.startTime = editStart.value;
-  task.endTime = editEnd.value;
+  task.startTime = localDateTimeValue(parsedStart);
+  task.endTime = localDateTimeValue(parsedEnd);
   task.durationMinutes = Math.max(0,Math.round((new Date(task.endTime)-new Date(task.startTime))/60_000));
   save();
 
@@ -145,6 +152,7 @@ saveTimeButton.addEventListener('click', () => {
     render();
   }, 1200);
 });
+    node.querySelector('.set-current-time-button').addEventListener('click',()=>{const duration=Math.max(1,task.durationMinutes||Math.round((new Date(task.endTime)-new Date(task.startTime))/60_000)||60);const now=new Date();now.setSeconds(0,0);const end=new Date(now.getTime()+duration*60_000);editStart.value=editableDateTimeValue(localDateTimeValue(now));editEnd.value=editableDateTimeValue(localDateTimeValue(end));editStart.setCustomValidity('');editEnd.setCustomValidity('');});
     const moveUp = node.querySelector('.move-up-button'), moveDown = node.querySelector('.move-down-button');
     const priorityTasks = sortedTasks();
     const taskPosition = priorityTasks.findIndex(item => item.id === task.id);

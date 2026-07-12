@@ -25,8 +25,9 @@ body { overflow-x:hidden; }
   .time-editor[hidden] { display:none; }
   .time-editor > span { display:none; }
   .time-editor { gap:8px; font-size:13px; }
-  .time-editor input[type="datetime-local"] { width:100%; min-height:44px; padding:0 8px; font-size:16px !important; line-height:44px; }
-  .save-time-button { grid-column:1; width:100%; min-width:112px; font-size:12px; }
+  .time-editor input { width:100%; min-height:44px; padding:0 8px; font-size:16px !important; line-height:44px; }
+  .time-editor-actions { grid-column:1; display:grid; grid-template-columns:1fr 1fr; }
+  .save-time-button,.set-current-time-button { width:100%; min-width:0; height:42px; font-size:12px; }
 }
 
 @media (max-width:600px) {
